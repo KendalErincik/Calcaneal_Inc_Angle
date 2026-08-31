@@ -10,12 +10,13 @@ type: software
 authors:
   - family-names: Erincik
     given-names: Kendal
-# TODO: add the remaining authors (order and affiliations) before submission.
+# TODO: add the remaining authors (order and affiliations) before the public release.
 repository-code: "https://github.com/KendalErincik/Calcaneal_Inc_Angle"
 url: "https://foot.radiologymate.com"
 license: MIT
-version: "2.0.0"
-date-released: "2026-07-29"
+version: "3.0.0"
+# TODO: set date-released to the actual public-release / acceptance date.
+date-released: "2026-08-31"
 doi: 10.5281/zenodo.21684632
 keywords:
   - calcaneal inclination angle

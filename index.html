@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calcaneal Inclination Angle - offline demo</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+         background: #0b0f16; color: #e8ecf3; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 26px 20px 40px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: #9aa4b2; font-size: .95rem; margin: 0 0 16px; }
+  .drop { border: 2px dashed #39414d; border-radius: 12px; padding: 34px 20px; text-align: center;
+          transition: border-color .15s, background .15s; }
+  .drop.over { border-color: #3b82f6; background: #16203a; }
+  .pick { background: #2563eb; color: #fff; border: 0; border-radius: 9px; padding: 11px 18px;
+          font-size: .98rem; cursor: pointer; }
+  .pick:hover { background: #1d4ed8; }
+  .pick:disabled { background: #33415a; cursor: default; }
+  .hint { color: #79828f; font-size: .85rem; margin-top: 10px; }
+  .opts { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
+  .opts label { font-size: .9rem; color: #c4ccd8; }
+  .status { margin: 18px 0; padding: 12px 14px; border-radius: 9px; background: #131a26; font-size: .92rem; }
+  .big { font-size: 2rem; font-weight: 700; margin: 8px 0; }
+  .err { background: #4a1f22; color: #ffb4ac; }
+  .ok { background: #16341f; color: #9be6ac; }
+  .warnbox { background: #3a2f16; color: #e8cf8a; }
+  canvas.result { max-width: 100%; border-radius: 10px; margin-top: 12px; display: none; }
+  .save { display: none; margin-top: 12px; color: #8ab4ff; }
+  .spin { display:none; margin-top:14px; color:#9aa4b2; }
+  .progress { height:6px; background:#1c2531; border-radius:6px; overflow:hidden; margin-top:10px; }
+  .progress-fill { height:100%; width:40%; background:#3b82f6; border-radius:6px;
+                   animation: slide 1.1s ease-in-out infinite; }
+  @keyframes slide { 0% { margin-left:-42%; } 100% { margin-left:102%; } }
+  .foot { color: #6b7480; font-size: .82rem; margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calcaneal Inclination Angle (CIA)</h1>
+  <p class="sub">Offline demonstration of the automated CIA measurement described in the manuscript.
+     Everything runs in <b>this browser</b>; the image never leaves your computer, nothing is
+     installed and nothing is uploaded to any server.</p>
+
+  <div id="boot" class="status">Loading models&hellip;</div>
+
+  <section id="panel-foot">
+    <p class="sub">Upload a lateral weight-bearing foot radiograph to measure the Calcaneal
+       Inclination Angle. For accurate results use a <b>DICOM</b> (.dcm) file &mdash; the model was
+       trained on DICOM windowing; PNG/JPG may under-segment.</p>
+    <div class="opts">
+      <label title="Decode large JPEG 2000 images at reduced resolution - faster, approximate. Leave off for exact results."><input id="foot-fast" type="checkbox"> Fast mode (approximate)</label>
+    </div>
+    <div id="foot-drop" class="drop">
+      <input id="foot-file" type="file" accept="image/*,.dcm,.dicom,.ima" hidden>
+      <button id="foot-pick" class="pick" type="button" disabled>Choose image</button>
+      <div class="hint">or drag &amp; drop a file here (.dcm recommended)</div>
+    </div>
+    <div id="foot-spin" class="spin">Measuring&hellip; the first run compiles the models and may take
+       a few seconds &mdash; please wait, it is working.
+       <div class="progress"><div class="progress-fill"></div></div></div>
+    <div id="foot-status" class="status" style="display:none"></div>
+    <canvas id="foot-canvas" class="result"></canvas>
+    <a id="foot-save" class="save" download="foot_cia.png">Save result image</a>
+  </section>
+
+  <p class="foot">Offline research tool. Not a medical device; not for diagnosis. Images are processed
+     entirely in your browser and are never uploaded. The clinician is solely responsible for any
+     clinical decision.</p>
+</div>
+
+<!-- vendored libraries (classic scripts -> globals: ort, dicomParser, OpenJPEGJS) -->
+<script src="vendor/ort/ort.wasm.min.js"></script>
+<script src="vendor/dicom-parser/dicomParser.min.js"></script>
+<script src="vendor/openjpeg/openjpegwasm_decode.js"></script>
+<!-- app modules (order matters: preprocess before dicom/ort_infer) -->
+<script src="js/preprocess.js?v=1"></script>
+<script src="js/foot_geom.js?v=1"></script>
+<script src="js/dicom.js?v=1"></script>
+<script src="js/ort_infer.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+</body>
+</html>

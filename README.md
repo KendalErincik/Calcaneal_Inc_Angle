@@ -14,15 +14,17 @@ single-class U-Net** (a compact 4-level U-Net trained from scratch). Because eve
 structure has a dedicated network, there is **no inter-class loss weighting
 hyperparameter** at all.
 
-| Structure | Role | Validation Dice |
+| Structure | Role | Validation Dice (5-seed mean +/- SD; primary run) |
 |---|---|---|
-| Calcaneus inferior (CAL) | P2 + tangent search for P3 | 0.942 |
-| 5th metatarsal head (M5) | P1 | 0.856 |
-| Calcaneonavicular / inferior calcaneocuboid (CC) | P4 | 0.826 |
+| Calcaneus inferior (CAL) | P2 + tangent search for P3 | 0.935 +/- 0.010 (0.936) |
+| 5th metatarsal head (M5) | P1 | 0.871 +/- 0.005 (0.865) |
+| Calcaneonavicular / inferior calcaneocuboid (CC) | P4 | 0.805 +/- 0.009 (0.807) |
 
 Each network is trained with an unweighted Dice + Binary Cross-Entropy loss and
-**early stopping** on the validation Dice; per-class binarisation thresholds
-(0.50 / 0.30 / 0.40) are selected on the recorded validation splits.
+**early stopping** on the validation Dice, across **five predefined seeds**; the
+pre-specified primary run is the one carried forward to all clinical evaluation.
+Per-class binarisation thresholds (0.50 / 0.30 / 0.40) are selected on the recorded
+validation splits.
 
 From the three masks the pipeline derives four landmarks deterministically:
 P1 (inferior-most point of M5), P2 (inferior-most point of the calcaneus), P4
@@ -34,19 +36,36 @@ are produced and is provided here in [`cia_geometry.py`](cia_geometry.py).
 ## Held-out internal test performance
 
 On a **held-out internal test set** of 105 radiographs from 76 patients, entirely
-independent of the development cohort (779 radiographs / 724 patients; no patient in
+independent of the development cohort (779 radiographs / 402 patients; no patient in
 both), the model was compared against three readers who measured every case
 independently and blinded:
 
-- Mean absolute error vs the 3-reader mean: **0.727 deg** (95% CI 0.533-0.922;
-  cluster-bootstrap CI 0.569-0.926)
-- Bias -0.110 deg; 95% limits of agreement -2.535 to +2.314 deg
-- 94.3% of cases within 2 deg; ICC(A,1) 0.984 across model and readers, 0.994 among readers
+- Mean absolute error vs the 3-reader mean: **0.690 deg** (95% CI 0.525-0.855)
+- Bias -0.425 deg (95% CI -0.620 to -0.230); 95% limits of agreement -2.427 to +1.577 deg
+- 92.4% of cases within 2 deg, 98.1% within 3 deg
+- ICC(A,1) 0.986 across model and readers, 0.994 among the three readers
 
 Inter-annotator Dice between the two radiologists (50 development images re-annotated
 from a blank canvas): 0.848 (CAL), 0.912 (M5), 0.819 (CC); passing the second
 annotator's masks through the identical geometry changed the angle by 0.39 +/- 0.29 deg
 (ICC 0.996).
+
+## External cohort
+
+The frozen primary model was applied, without modification, to an **independent external
+cohort of 50 radiographs from 33 patients** from a second institution, measured by the
+same three readers under the identical blinded protocol:
+
+- Mean absolute error vs the 3-reader mean: **0.85 deg**
+- 92.0% of cases within 2 deg; ICC 0.969
+
+## Try it (browser demo)
+
+A self-contained, browser-based demonstration is available at
+[kendalerincik.github.io/Calcaneal_Inc_Angle](https://kendalerincik.github.io/Calcaneal_Inc_Angle/):
+upload a lateral foot radiograph and the full pipeline (segmentation -> landmarks -> angle)
+runs **entirely in your browser** - no image is uploaded anywhere. The demo works offline
+once loaded. (Source in [`docs/`](docs).)
 
 ## Repository contents
 
